@@ -1,0 +1,102 @@
+.projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.project-card {
+  position: relative;
+  overflow: hidden;
+}
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--pAccent, var(--accent));
+}
+.project-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.project-meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+.project-badge {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  background: rgba(124, 106, 240, 0.15);
+  color: var(--accent2);
+}
+.project-date {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text2);
+}
+.project-links { display: flex; gap: 1rem; }
+.project-link {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text2);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+.project-link:hover { color: var(--accent2); }
+.project-link.live { color: var(--accent3); }
+.project-number {
+  font-family: var(--mono);
+  font-size: 3rem;
+  font-weight: 700;
+  color: rgba(124, 106, 240, 0.12);
+  line-height: 1;
+  margin-bottom: -0.5rem;
+}
+.project-name {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+}
+.project-tagline {
+  color: var(--accent2);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+.project-desc {
+  color: var(--text2);
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+.project-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.project-hl {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--accent3);
+}
+.project-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.project-tag {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  color: var(--text2);
+}

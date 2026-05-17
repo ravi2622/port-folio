@@ -1,0 +1,35 @@
+.footer {
+  padding: 2rem 0;
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+}
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.footer-logo {
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.footer-copy {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text2);
+}
+.footer-links {
+  display: flex;
+  gap: 1.25rem;
+}
+.footer-links a {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text2);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+.footer-links a:hover { color: var(--accent2); }
