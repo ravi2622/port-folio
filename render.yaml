@@ -1,0 +1,14 @@
+# Render.com — connect this repo and deploy as a Web Service
+services:
+  - type: web
+    name: ravi-portfolio
+    runtime: node
+    buildCommand: npm install && npm run build && npm install --prefix backend
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: CLIENT_URL
+        sync: false
