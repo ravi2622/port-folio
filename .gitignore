@@ -1,6 +1,10 @@
 node_modules
 dist
 .env
+.env.*
+!.env.example
 backend/.env
+frontend/dist
 *.log
 .DS_Store
+mnt

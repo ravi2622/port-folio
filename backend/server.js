@@ -9,24 +9,7 @@ dotenv.config();
 const app = express();
 const isProduction = process.env.NODE_ENV === "production";
 
-const allowedOrigins = [
-  process.env.CLIENT_URL,
-  process.env.RENDER_EXTERNAL_URL,
-  !isProduction && "http://localhost:5173",
-].filter(Boolean);
-
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
@@ -44,21 +27,27 @@ if (isProduction) {
 const PORT = process.env.PORT || 5000;
 
 const startServer = () => {
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 };
 
+const mongoUri = process.env.MONGO_URI;
+
+if (!mongoUri && isProduction) {
+  console.error("MONGO_URI is missing. Add it in Render Environment variables.");
+  process.exit(1);
+}
+
 mongoose
-  .connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/portfolio")
+  .connect(mongoUri || "mongodb://127.0.0.1:27017/portfolio")
   .then(() => {
     console.log("MongoDB connected");
     startServer();
   })
   .catch((err) => {
     console.error("MongoDB error:", err.message);
-    if (isProduction) {
-      console.error("MongoDB is required in production. Set MONGO_URI.");
-      process.exit(1);
-    }
+    if (isProduction) process.exit(1);
     console.log("Starting without MongoDB (dev only)");
     startServer();
   });
