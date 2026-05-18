@@ -1,4 +1,5 @@
 import "./About.css";
+import raviPhoto from "./ravi.jpeg";
 
 export default function About() {
   return (
@@ -42,7 +43,9 @@ export default function About() {
           </div>
           <div className="about-visual">
             <div className="avatar-ring">
-              <div className="avatar-inner">RV</div>
+              <div className="avatar-inner">
+                <img src={raviPhoto} alt="Ravi Vataliya" />
+              </div>
             </div>
             <div className="interest-tags">
               {["🏏 Cricket", "🎌 Anime", "⛩️ Spirituality", "💻 Tech Meetups", "🤝 Volunteering"].map(t => (
