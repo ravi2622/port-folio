@@ -4,6 +4,9 @@ const Contact = require("../models/Contact");
 
 router.post("/", async (req, res) => {
   try {
+    if (require("mongoose").connection.readyState !== 1) {
+      return res.status(503).json({ error: "Database not connected. Try again in a moment." });
+    }
     const { name, email, message } = req.body;
     if (!name || !email || !message) {
       return res.status(400).json({ error: "All fields are required." });

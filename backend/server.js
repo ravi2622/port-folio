@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const path = require("path");
+const fs = require("fs");
 
 dotenv.config();
 
@@ -12,72 +13,72 @@ const isProduction = process.env.NODE_ENV === "production";
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
-app.get("/api/health", (_req, res) => res.json({ ok: true }));
-
-app.use("/api/contact", require("./routes/contact"));
-
-if (isProduction) {
-  const distPath = path.join(__dirname, "../frontend/dist");
-  app.use(express.static(distPath));
-  app.get("*", (_req, res) => {
-    res.sendFile(path.join(distPath, "index.html"));
-  });
-}
-
-const PORT = process.env.PORT || 5000;
-
-const startServer = () => {
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-};
-
 function validateMongoUri(uri) {
-  if (!uri || typeof uri !== "string") {
-    return "MONGO_URI is missing.";
-  }
+  if (!uri) return "MONGO_URI is missing";
   const trimmed = uri.trim();
   if (trimmed.includes("<") || trimmed.includes(">")) {
-    return "MONGO_URI still contains <db_password>. Replace it with your real Atlas password.";
+    return "Replace <db_password> with your real Atlas password";
   }
   if (!trimmed.startsWith("mongodb://") && !trimmed.startsWith("mongodb+srv://")) {
-    return "MONGO_URI must start with mongodb+srv:// or mongodb://";
+    return "MONGO_URI must start with mongodb+srv://";
   }
   if (!trimmed.includes(".mongodb.net")) {
-    return "MONGO_URI must include your Atlas host (e.g. cluster0.brkpl.mongodb.net)";
+    return "MONGO_URI must include cluster0.brkpl.mongodb.net";
   }
-  if (trimmed.includes(" ") || trimmed.includes("\n")) {
-    return "MONGO_URI must not contain spaces or line breaks.";
-  }
+  if (/\s/.test(trimmed)) return "MONGO_URI must not contain spaces";
   return null;
 }
 
 const mongoUri = (process.env.MONGO_URI || "").trim();
 const uriError = validateMongoUri(mongoUri);
 
-if (uriError && isProduction) {
-  console.error(uriError);
-  console.error("Example: mongodb+srv://ravi2622:YOUR_PASSWORD@cluster0.brkpl.mongodb.net/portfolio?retryWrites=true&w=majority");
-  process.exit(1);
-}
-
-if (!mongoUri && isProduction) {
-  console.error("MONGO_URI is missing. Add it in Render Environment variables.");
-  process.exit(1);
-}
-
-mongoose
-  .connect(mongoUri || "mongodb://127.0.0.1:27017/portfolio")
-  .then(() => {
-    console.log("MongoDB connected");
-    startServer();
-  })
-  .catch((err) => {
-    console.error("MongoDB error:", err.message);
-    if (isProduction) {
-      console.error("Check MONGO_URI on Render. Password with @ # % must be URL-encoded.");
-      process.exit(1);
-    }
-    console.log("Starting without MongoDB (dev only)");
-    startServer();
+app.get("/api/health", (_req, res) => {
+  const dbReady = mongoose.connection.readyState === 1;
+  res.json({
+    ok: true,
+    db: dbReady ? "connected" : "disconnected",
+    mongoConfigured: Boolean(mongoUri),
+    mongoUriError: uriError || null,
   });
+});
+
+app.use("/api/contact", require("./routes/contact"));
+
+if (isProduction) {
+  const distPath = path.join(__dirname, "../frontend/dist");
+  if (fs.existsSync(distPath)) {
+    app.use(express.static(distPath));
+    app.get("*", (_req, res) => {
+      res.sendFile(path.join(distPath, "index.html"));
+    });
+  } else {
+    console.error("frontend/dist not found — run build step first");
+  }
+}
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
+  if (uriError) {
+    console.error("MONGO_URI problem:", uriError);
+    console.error("Fix in Render → Environment → MONGO_URI");
+  } else if (mongoUri) {
+    connectMongo();
+  } else if (isProduction) {
+    console.error("MONGO_URI not set. Add it in Render Environment variables.");
+  } else {
+    connectMongo("mongodb://127.0.0.1:27017/portfolio");
+  }
+});
+
+function connectMongo(uri = mongoUri) {
+  mongoose
+    .connect(uri)
+    .then(() => console.log("MongoDB connected"))
+    .catch((err) => {
+      console.error("MongoDB error:", err.message);
+      console.error("Check password is URL-encoded (@ → %40). Retry in 10s...");
+      setTimeout(() => connectMongo(uri), 10000);
+    });
+}
